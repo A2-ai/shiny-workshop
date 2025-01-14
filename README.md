@@ -7,13 +7,13 @@ This demo app provides an introduction to using mrgsolve and Shiny to create pha
 1.  Clone this repo:
 
 ```         
-gh repo clone A2-ai/demo-anne
+gh repo clone A2-ai/shiny-workshop
 ```
 
 or
 
 ```         
-git clone https://github.com/A2-ai/demo-anne.git
+git clone https://github.com/A2-ai/shiny-workshop.git
 ```
 
 2.  Run `renv::restore`

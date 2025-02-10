@@ -25,12 +25,12 @@ server <- function(input, output) {
     mod <- mread("pk1", modlib())
 
     # Adjust input$cl_choice for selected model
-    updated_mod <- param(mod, CL = 10)
+    updated_mod <- param(mod, CL = input$cl_choice)
 
     # Adjust input$sim_end for simulation end time
     sim_data <- updated_mod %>%
       ev(amt = 100, ii = 24, addl = 9) %>%
-      mrgsim_df(end = 300, delta = 0.1)
+      mrgsim_df(end = input$sim_end, delta = 0.1)
   })
 
   output$sim_plot <- renderPlot({
@@ -40,6 +40,7 @@ server <- function(input, output) {
   })
 
   output$sim_table <- renderTable({
+    sim_data()
     # Add the sim_data() reactive expression
   })
 }

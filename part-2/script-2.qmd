@@ -1,0 +1,59 @@
+
+```{r}
+library(ggplot2)
+library(mrgsolve)
+library(dplyr)
+```
+
+```{r}
+mod <- mrgsolve::house() %>% 
+  omat(dmat(0.1, 0.2, 0.3, 0.4))
+```
+
+```{r}
+regimen1 <- list(name = "QD 350 mg", dose = ev(amt = 350, ii = 24, addl = 4))
+regimen2 <- list(name = "QD 500 mg", dose = ev(amt = 500, ii = 24, addl = 4))
+
+sim1 <- replicate(50, mod %>%
+                    ev(regimen1$dose) %>%
+                    mrgsim_df(end = 1200, delta = 0.05) %>%
+                    mutate(Regimen = regimen1$name), simplify = FALSE) %>%
+          bind_rows()
+
+sim2 <- replicate(50, mod %>%
+                    ev(regimen2$dose) %>%
+                    mrgsim_df(end = 1200, delta = 0.05) %>%
+                    mutate(Regimen = regimen2$name), simplify = FALSE) %>%
+          bind_rows()
+
+sim_results <- bind_rows(sim1, sim2)
+```
+
+```{r}
+sim_summary <- sim_results %>%
+  group_by(time, Regimen) %>%
+  summarize(
+    median_CP = median(CP),
+    lower_CP = quantile(CP, 0.05),
+    upper_CP = quantile(CP, 0.95),
+    .groups = "drop"
+  )
+box_data <- sim_results %>% filter(time %in% c(12, 24, 48, 96))
+```
+
+```{r}
+p <- ggplot(sim_summary, aes(x = time, y = median_CP, color = Regimen)) +
+      geom_line(linewidth = .5) +
+      geom_ribbon(aes(ymin = lower_CP, ymax = upper_CP, fill = Regimen), alpha = 0.2, color = NA) +
+      labs(x = "Time (hours)", y = "Concentration (mg/L)", title = "Simulation Results") +
+      theme_minimal()
+```
+
+```{r}
+p2 <- ggplot(box_data, aes(x = as.factor(time), y = CP, fill = Regimen)) +
+      geom_boxplot() +
+      labs(x = "Time (hours)", y = "Concentration (mg/L)", title = "Boxplots at Selected Time Points") +
+      theme_minimal()
+```
+
+

@@ -1,0 +1,27 @@
+---
+title: "PK Report for Subject `r params$subject`"
+output: pdf_document
+params:
+  subject: NA
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+
+subject_data <- Theoph %>% filter(Subject == params$subject)
+```
+
+```{r, echo=FALSE}
+knitr::kable(subject_data, format = "latex")
+```
+
+```{r, echo=FALSE}
+ggplot(subject_data, aes(x = Time, y = conc)) +
+  geom_point() +
+  geom_line() +
+  labs(title = paste("PK Profile for Subject", params$subject),
+       x = "Time (h)", y = "Concentration (mg/L)") +
+  theme_minimal()
+
+```
